@@ -163,8 +163,9 @@ fun TaskListScreen(
                         ) { task ->
                             TaskItem(
                                 task = task,
-                                onToggleCompletion = { viewModel.toggleTaskCompletion(it) },
-                                onDelete = { viewModel.deleteTask(it) }
+                                onTaskClick = {},
+                                onTaskCompletionToggle = { entity, _ -> viewModel.toggleTaskCompletion(entity) },
+                                onTaskDelete = { viewModel.deleteTask(it) }
                             )
                         }
                     }
