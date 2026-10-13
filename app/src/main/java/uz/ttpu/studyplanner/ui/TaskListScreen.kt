@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -52,6 +53,7 @@ fun TaskListScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
+    var taskToDelete by remember { mutableStateOf<TaskEntity?>(null) }
     val context = LocalContext.current
 
     Scaffold(
@@ -66,7 +68,9 @@ fun TaskListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddDialog = true }
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -81,7 +85,7 @@ fun TaskListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Search Input Field
+            // Calm, pill-shaped Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChanged(it) },
@@ -103,6 +107,7 @@ fun TaskListScreen(
                     }
                 },
                 singleLine = true,
+                shape = CircleShape,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -167,7 +172,7 @@ fun TaskListScreen(
                                 task = task,
                                 onTaskClick = { selectedTask = it },
                                 onTaskCompletionToggle = { entity, _ -> viewModel.toggleTaskCompletion(entity) },
-                                onTaskDelete = { viewModel.deleteTask(it) }
+                                onTaskDelete = { taskToDelete = it }
                             )
                         }
                     }
@@ -193,9 +198,22 @@ fun TaskListScreen(
                     viewModel.toggleTaskCompletion(it)
                     selectedTask = selectedTask?.copy(isCompleted = !it.isCompleted)
                 },
-                onDelete = {
-                    viewModel.deleteTask(it)
+                onDelete = { task ->
+                    taskToDelete = task
                     selectedTask = null
+                }
+            )
+        }
+
+        if (taskToDelete != null) {
+            DeleteConfirmationDialog(
+                taskTitle = taskToDelete!!.title,
+                onConfirm = {
+                    viewModel.deleteTask(taskToDelete!!)
+                    taskToDelete = null
+                },
+                onDismiss = {
+                    taskToDelete = null
                 }
             )
         }
