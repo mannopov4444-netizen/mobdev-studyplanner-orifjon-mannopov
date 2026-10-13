@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import uz.ttpu.studyplanner.data.TaskEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +51,7 @@ fun TaskListScreen(
     val filterPriority by viewModel.filterPriority.collectAsStateWithLifecycle()
 
     var showAddDialog by remember { mutableStateOf(false) }
+    var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
     val context = LocalContext.current
 
     Scaffold(
@@ -163,7 +165,7 @@ fun TaskListScreen(
                         ) { task ->
                             TaskItem(
                                 task = task,
-                                onTaskClick = {},
+                                onTaskClick = { selectedTask = it },
                                 onTaskCompletionToggle = { entity, _ -> viewModel.toggleTaskCompletion(entity) },
                                 onTaskDelete = { viewModel.deleteTask(it) }
                             )
@@ -179,6 +181,21 @@ fun TaskListScreen(
                 onConfirm = { title, description, subject, dueDate, priority ->
                     viewModel.addTask(title, description, subject, dueDate, priority, context)
                     showAddDialog = false
+                }
+            )
+        }
+
+        if (selectedTask != null) {
+            TaskDetailDialog(
+                task = selectedTask!!,
+                onDismiss = { selectedTask = null },
+                onToggleCompletion = {
+                    viewModel.toggleTaskCompletion(it)
+                    selectedTask = selectedTask?.copy(isCompleted = !it.isCompleted)
+                },
+                onDelete = {
+                    viewModel.deleteTask(it)
+                    selectedTask = null
                 }
             )
         }
