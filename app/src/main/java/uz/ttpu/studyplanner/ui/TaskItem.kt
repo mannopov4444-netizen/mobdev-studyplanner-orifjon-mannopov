@@ -49,14 +49,18 @@ fun TaskItem(
     modifier: Modifier = Modifier
 ) {
     val (priorityLabel, priorityColor) = when (task.priority) {
-        1 -> "Low" to Color(0xFF4CAF50)
-        2 -> "Medium" to Color(0xFFFF9800)
-        3 -> "High" to Color(0xFFE53935)
-        else -> "Low" to Color(0xFF4CAF50)
+        1 -> "Low" to Color(0xFF2E7D32)
+        2 -> "Medium" to Color(0xFFEF6C00)
+        3 -> "High" to Color(0xFFC62828)
+        else -> "Low" to Color(0xFF2E7D32)
     }
 
-    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val formattedDate = dateFormatter.format(Date(task.dueDate))
+
+    // Soft Lavender / Purple color for Subject Tag
+    val lavenderBg = Color(0xFFEDE7F6)
+    val lavenderText = Color(0xFF4A148C)
 
     ElevatedCard(
         modifier = modifier
@@ -65,8 +69,8 @@ fun TaskItem(
             .clickable { onTaskClick(task) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 3.dp,
-            pressedElevation = 6.dp
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
         ),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -77,10 +81,10 @@ fun TaskItem(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
         ) {
-            // Visual Priority Indicator Bar on the left edge
+            // Left border priority indicator line
             Box(
                 modifier = Modifier
-                    .width(6.dp)
+                    .width(5.dp)
                     .fillMaxHeight()
                     .background(priorityColor)
             )
@@ -90,7 +94,7 @@ fun TaskItem(
                     .fillMaxWidth()
                     .padding(14.dp)
             ) {
-                // Top Row: Checkbox, Title, and Delete Icon Button
+                // Header Row: Checkbox, Title (1 line max), Delete Icon
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -106,14 +110,14 @@ fun TaskItem(
                         )
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
                         text = task.title,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
                         color = if (task.isCompleted)
@@ -136,29 +140,30 @@ fun TaskItem(
                     }
                 }
 
-                // Description
+                // Description (2 lines max with Ellipsis for uniform card height)
                 if (task.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = task.description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(start = 48.dp)
+                        modifier = Modifier.padding(start = 42.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Bottom Row: Subject & Priority Chips on Left, Date on Right
+                // Bottom Metadata Row: Subject Tag + Priority Tag on Left, Due Date on Right
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 48.dp),
+                        .padding(start = 42.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Left Badges
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -166,14 +171,14 @@ fun TaskItem(
                     ) {
                         if (task.subject.isNotBlank()) {
                             Surface(
-                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                color = lavenderBg,
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
                                     text = task.subject,
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    fontWeight = FontWeight.Medium,
+                                    color = lavenderText,
+                                    fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
@@ -195,7 +200,7 @@ fun TaskItem(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Formatted Due Date with Calendar Icon
+                    // Horizontal Due Date in Bottom Right
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
@@ -208,7 +213,7 @@ fun TaskItem(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = formattedDate,
+                            text = "Due: $formattedDate",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.outline,
                             fontWeight = FontWeight.Medium
